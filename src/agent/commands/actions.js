@@ -274,6 +274,17 @@ export const actionsList = [
         }, false, 10) // 10 minute timeout
     },
     {
+        name: '!harvestCrops',
+        description: 'Harvest the nearest crops of a given type.',
+        params: {
+            'type': { type: 'BlockName', description: 'The crop type to collect.' },
+            'num': { type: 'int', description: 'The number of crops to collect.', domain: [1, Number.MAX_SAFE_INTEGER] }
+        },
+        perform: wrapExecution(async (agent, type, num) => {
+            await skills.harvestBlock(agent.bot, type, num);
+        }, false, 10) // 10 minute timeout
+    },
+    {
         name: '!collectAllBlocks',
         description: 'Collect all the nearest blocks of a given type until told to stop.',
         params: {

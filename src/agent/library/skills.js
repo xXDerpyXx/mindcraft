@@ -482,6 +482,89 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
     return collected > 0;
 }
 
+export async function harvestBlock(bot, blockType, num=1, exclude=null) {
+    /**
+     * Collect one of the given block type.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} blockType, the type of block to collect.
+     * @param {number} num, the number of blocks to collect. Defaults to 1.
+     * @returns {Promise<boolean>} true if the block was collected, false if the block type was not found.
+     * @example
+     * await skills.collectBlock(bot, "oak_log");
+     **/
+    if (num < 1) {
+        log(bot, `Invalid number of blocks to collect: ${num}.`);
+        return false;
+    }
+
+    let crops = ["wheat","beetroots","carrots","potatoes"]
+    let blocktypes = [blockType];
+    if (blockType === 'potato')
+        blocktypes.push(blockType+'es');
+    if (blockType === 'carrot' || blockType === 'beetroot')
+        blocktypes.push(blockType+'s');
+
+    let matureAge = 7
+    let collected = 0;
+
+    if (blockType === 'beetroots' || blockType === 'beetroot')
+        matureAge = 3
+
+    if (blockType === 'cocoa')
+        matureAge = 2
+
+    var unmature = 0
+
+    for (let i=0; i<num; i++) {
+        let blocks = world.getNearestBlocks(bot, blocktypes, 64);
+        if (exclude) {
+            for (let position of exclude) {
+                blocks = blocks.filter(
+                    block => (block.position.x !== position.x || block.position.y !== position.y || block.position.z !== position.z) && (block.metadata.age === matureAge)
+                );
+                var unharvestable = blocks.filter(
+                    block => (block.position.x !== position.x || block.position.y !== position.y || block.position.z !== position.z) && (block.metadata.age === matureAge)
+                );
+                unmature = unharvestable.length
+            }
+        }
+
+        if (blocks.length === 0) {
+            if (collected === 0)
+                log(bot, `No ${blockType} nearby to harvest.`);
+            else
+                log(bot, `No more ${blockType} nearby to harvest.`);
+            break;
+        }
+        const block = blocks[0];
+
+        try {
+            await bot.collectBlock.collect(block);
+            collected++;
+        }
+        catch (err) {
+            if (err.name === 'NoChests') {
+                log(bot, `Failed to harvest ${blockType}: Inventory full, no place to deposit.`);
+                break;
+            }
+            else {
+                log(bot, `Failed to harvest ${blockType}: ${err}.`);
+                continue;
+            }
+        }
+        
+        if (bot.interrupt_code)
+            break;  
+    }
+    if(unmature > 0){
+        log(bot, `Harvested ${collected} ${blockType}, ${unmature} ${blockType} are not done growing.`);
+    }else{
+        log(bot, `Harvested ${collected} ${blockType}.`);
+    }
+    
+    return collected > 0;
+}
+
 export async function pickupNearbyItems(bot) {
     /**
      * Pick up all nearby items.

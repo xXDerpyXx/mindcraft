@@ -133,7 +133,7 @@ export const queryList = [
                 skills.log(agent.bot, `No z coordinate specified, make sure to include an x y and z coordinate.`);
                 return;
             }
-            return pad("the block at "+x+", "+y+", "+z+" is "+world.getBlockAtCoordinates(x,y,z))
+            return pad("the block at "+x+", "+y+", "+z+" is "+agent.bot.blockAt([x,y,z]).name)
         }
     },
     { 

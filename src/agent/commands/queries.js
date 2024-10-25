@@ -150,7 +150,7 @@ export const queryList = [
             var res = ""
             if(block){
                 var pos = block.position
-                res = "the nearest "+blockName+" is at ("+pos["x"]+", "+pos["y"]+", "+pos["z"]+")"
+                res = "the nearest "+blockName+" is at ("+pos["x"]+", "+pos["y"]+", "+pos["z"]+"), this is "+Math.round(block.position.distanceTo(bot.entity.position))+" blocks away from you."
             }else{
                 res = blockName+" wasn't found within "+range+" blocks."
             }

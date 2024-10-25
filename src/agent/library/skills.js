@@ -1263,7 +1263,7 @@ export async function tillAndSow(bot, x, y, z, seedType) {
         }
         await bot.equip(seeds, 'hand');
 
-        await bot.placeBlock(block, new Vec3(0, -1, 0));
+        await bot.placeBlock(block, new Vec3(0, 1, 0));
         log(bot, `Planted ${seedType} at x:${x.toFixed(1)}, y:${y.toFixed(1)}, z:${z.toFixed(1)}.`);
     }
     return true;

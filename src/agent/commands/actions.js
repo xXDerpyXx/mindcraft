@@ -149,7 +149,7 @@ export const actionsList = [
     },
     {
         name: '!plantSeeds',
-        description: 'Go to a specific set of coordinates.',
+        description: 'Till the soil and plant seeds at a specific set of coordinates, plant on grass to make sure it\'s on the surface.',
         params: {
             'seedName': { type: 'string', description: 'The name of the seed you want to plant.'},
             'x': { type: 'float', description: 'The x coordinate of your destination.' },

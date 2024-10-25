@@ -7,6 +7,7 @@ export class SelfPrompter {
         this.prompt = '';
         this.idle_time = 0;
         this.cooldown = 2000;
+        this.msg = '';
     }
 
     start(prompt) {
@@ -19,6 +20,7 @@ export class SelfPrompter {
         }
         this.on = true;
         this.prompt = prompt;
+        this.msg = `You are self-prompting with the goal: '${this.prompt}'. Your next response MUST contain a command !withThisSyntax. Respond:`;
         this.startLoop();
     }
 
@@ -32,9 +34,9 @@ export class SelfPrompter {
         let no_command_count = 0;
         const MAX_NO_COMMAND = 3;
         while (!this.interrupt) {
-            const msg = `You are self-prompting with the goal: '${this.prompt}'. Your next response MUST contain a command !withThisSyntax. Respond:`;
+            this.msg = `You are self-prompting with the goal: '${this.prompt}'. Your next response MUST contain a command !withThisSyntax. Respond:`;
             
-            let used_command = await this.agent.handleMessage('system', msg, -1);
+            let used_command = await this.agent.handleMessage('system', this.msg, -1);
             if (!used_command) {
                 no_command_count++;
                 if (no_command_count >= MAX_NO_COMMAND) {

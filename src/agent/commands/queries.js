@@ -133,7 +133,29 @@ export const queryList = [
                 skills.log(agent.bot, `No z coordinate specified, make sure to include an x y and z coordinate.`);
                 return;
             }
-            return pad("the block at "+x+", "+y+", "+z+" is "+world.getBlockAtCoordinate(x,y,z))
+            return pad("the block at "+x+", "+y+", "+z+" is "+world.getBlockAtCoordinates(x,y,z))
+        }
+    },
+    { 
+        name: "!nearestBlock",
+        description: "Get the nearest block of a specific type.",
+        optionalArgs: true,
+        params: {
+            'blockName': { type: 'string', description: 'type of block to search for, use this for farming or finding specific blocks, use !collectBlocks instead for gathering resources.'},
+            'range': { type: 'int', description: 'distance to search (optional).' ,domain: [0, 64]},
+        },
+        perform: function (agent,blockName,range) {
+            let bot = agent.bot;
+            var block = world.getNearestBlock(bot,blockName,range)
+            var res = ""
+            if(block){
+                var pos = block.position
+                res = "the nearest "+blockName+" is at ("+pos["x"]+", "+pos["y"]+", "+pos["z"]+")"
+            }else{
+                res = blockName+" wasn't found within "+range+" blocks."
+            }
+            
+            return pad(res);
         }
     },
     {
@@ -158,13 +180,19 @@ export const queryList = [
     {
         name: "!entities",
         description: "Get the nearby players and entities.",
-        perform: function (agent) {
+        optionalArgs: true,
+        params: {
+            'range': { type: 'int', description: 'distance to search (optional).' ,domain: [0, 64]},
+        },
+        perform: function (agent,range) {
             let bot = agent.bot;
+            if(!range)
+                range = 64
             let res = 'NEARBY_ENTITIES';
             //for (const entity of world.getNearbyPlayerNames(bot)) {
                 //res += `\n- player: ${entity}`;
             //}
-            for (const entity of world.getNearbyEntities(bot)) {
+            for (const entity of world.getNearbyEntities(bot,range)) {
                 if (entity.name === 'item')
                     continue;
                 if(entity.name === "player")
@@ -172,7 +200,7 @@ export const queryList = [
                 else
                     res += `\n${entity.type}: ${entity.name}`;
             }
-            if (res == 'NEARBY_ENTITIES') {
+            if (res == 'NEARBY_ENTITIES within '+range+" blocks") {
                 res += ': none';
             }
             return pad(res);

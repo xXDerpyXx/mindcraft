@@ -148,6 +148,35 @@ export const actionsList = [
         })
     },
     {
+        name: '!plantSeeds',
+        description: 'Go to a specific set of coordinates.',
+        params: {
+            'seedName': { type: 'string', description: 'The name of the seed you want to plant.'},
+            'x': { type: 'float', description: 'The x coordinate of your destination.' },
+            'y': { type: 'float', description: 'The y coordinate of your destination.' },
+            'z': { type: 'float', description: 'The z coordinate of your destination.' }
+        },
+        perform: wrapExecution(async (agent, seedName, x,y,z) => {
+            if (x === false) {
+                skills.log(agent.bot, `No x coordinate specified, make sure to include an x y and z coordinate.`);
+                return;
+            }
+            if (x === false) {
+                skills.log(agent.bot, `No x coordinate specified, make sure to include an x y and z coordinate.`);
+                return;
+            }
+            if (y === false) {
+                skills.log(agent.bot, `No y coordinate specified, make sure to include an x y and z coordinate.`);
+                return;
+            }
+            if (seedName === false) {
+                skills.log(agent.bot, `No type of seed specified.`);
+                return;
+            }
+            await skills.tillAndSow(agent.bot, x, y, z, seedName);
+        })
+    },
+    {
         name: '!goToPlace',
         description: 'Go to a saved location.',
         params: {'name': { type: 'string', description: 'The name of the location to go to.' }},
@@ -177,8 +206,8 @@ export const actionsList = [
         description: 'Eat/drink the given item.',
         params: {'item_name': { type: 'ItemName', description: 'The name of the item to consume.' }},
         perform: wrapExecution(async (agent, item_name) => {
-            await agent.bot.consume(item_name);
-            skills.log(agent.bot, `Consumed ${item_name}.`);
+            skills.eat(item_name);
+            //skills.log(agent.bot, `Consumed ${item_name}.`);
         })
     },
     {

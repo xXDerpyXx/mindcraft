@@ -213,9 +213,17 @@ export async function executeCommand(agent, message) {
         if (parsed.args) {
             numArgs = parsed.args.length;
         }
-        if (numArgs !== numParams(command))
-            return `Command ${command.name} was given ${numArgs} args, but requires ${numParams(command)} args.`;
-        else {
+        if (numArgs !== numParams(command)){
+            var output = "you missed args when using the command '"+command.name+"', you need to use the following arguments:\n"
+            var paramList = ""
+            for(var k in command.params){
+                output += k+": "+command.params[k].description
+                paramList += k+","
+            }
+            paramList = paramList.substring(0, paramList.length - 1)
+            output+"formatted like: "+command.name+"("+paramList+")"
+            return output//`Command ${command.name} was given ${numArgs} args, but requires ${numParams(command)} args.`;
+        }else {
             if (is_action)
                 agent.coder.setCurActionName(command.name);
             const result = await command.perform(agent, ...parsed.args);

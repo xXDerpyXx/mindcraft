@@ -140,10 +140,17 @@ export class Agent {
                     // add the preceding message to the history to give context for newAction
                     this.history.add(source, message);
                 }
-                let execute_res = await executeCommand(this, message);
-                if (execute_res) 
-                    this.cleanChat(execute_res);
+                if(settings.ignore_external_commands && source === this.name){
+                    let execute_res = await executeCommand(this, message);
+                    if (execute_res) 
+                        this.cleanChat(execute_res);
+                }else if(!settings.ignore_external_commands){
+                    let execute_res = await executeCommand(this, message);
+                    if (execute_res) 
+                        this.cleanChat(execute_res);
+                }
                 return true;
+
             }
         }
 

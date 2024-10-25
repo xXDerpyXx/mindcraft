@@ -80,7 +80,7 @@ export async function craftRecipe(bot, itemName, num=1) {
         }
     }
     if (!recipes || recipes.length === 0) {
-        log(bot, `You do not have the resources to craft a ${itemName}.`);
+        log(bot, `You do not have the resources to craft a ${itemName}, use !inventory to see what you are missing.`);
         if (placedTable) {
             await collectBlock(bot, 'crafting_table', 1);
         }
@@ -125,8 +125,13 @@ export async function smeltItem(bot, itemName, num=1) {
      * await skills.smeltItem(bot, "beef");
      **/
 
+    if(mc.getFuelSmeltOutput(itemName) != 0){
+        log(bot, `Cannot smelt ${itemName}, it is fuel and does not need to be smelted.`);
+        return false;
+    }
+
     if (!mc.isSmeltable(itemName)) {
-        log(bot, `Cannot smelt ${itemName}. Hint: make sure you are smelting the 'raw' item.`);
+        log(bot, `Cannot smelt ${itemName}. Hint: use !inventory to see what you have to smelt, and the proper name for it.`);
         return false;
     }
 
@@ -175,6 +180,9 @@ export async function smeltItem(bot, itemName, num=1) {
         return false;
     }
 
+    var wastedString = ""
+    
+
     // fuel the furnace
     if (!furnace.fuelItem()) {
         let fuel = mc.getSmeltingFuel(bot);
@@ -196,7 +204,12 @@ export async function smeltItem(bot, itemName, num=1) {
         }
         await furnace.putFuel(fuel.type, null, put_fuel);
         log(bot, `Added ${put_fuel} ${mc.getItemName(fuel.type)} to furnace fuel.`);
-        console.log(`Added ${put_fuel} ${mc.getItemName(fuel.type)} to furnace fuel.`)
+        // redundant console log?
+        //console.log(`Added ${put_fuel} ${mc.getItemName(fuel.type)} to furnace fuel.`)
+        var wasteCount = num%mc.getFuelSmeltOutput(fuel.name)
+        if(wasteCount != 0){
+            wastedString = "\nYou wasted your fuel, you could've smelted "+wasteCount+" more items, try to smelt more items at a time next time."
+        }
     }
     // put the items in the furnace
     await furnace.putInput(mc.getItemId(itemName), null, num);
@@ -229,6 +242,7 @@ export async function smeltItem(bot, itemName, num=1) {
     if (placedFurnace) {
         await collectBlock(bot, 'furnace', 1);
     }
+    
     if (total === 0) {
         log(bot, `Failed to smelt ${itemName}.`);
         return false;
@@ -237,7 +251,7 @@ export async function smeltItem(bot, itemName, num=1) {
         log(bot, `Only smelted ${total} ${mc.getItemName(smelted_item.type)}.`);
         return false;
     }
-    log(bot, `Successfully smelted ${itemName}, got ${total} ${mc.getItemName(smelted_item.type)}.`);
+    log(bot, `Successfully smelted ${itemName}, got ${total} ${mc.getItemName(smelted_item.type)}.`+wastedString);
     return true;
 }
 
@@ -1194,7 +1208,7 @@ export async function goToBed(bot) {
     return true;
 }
 
-export async function tillAndSow(bot, x, y, z, seedType=null) {
+export async function tillAndSow(bot, x, y, z, seedType) {
     /**
      * Till the ground at the given position and plant the given seed type.
      * @param {MinecraftBot} bot, reference to the minecraft bot.

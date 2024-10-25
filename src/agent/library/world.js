@@ -98,8 +98,11 @@ export function getNearestBlock(bot, block_type, distance=16) {
 }
 
 
-export function getNearbyEntities(bot, maxDistance=16) {
+export function getNearbyEntities(bot, maxDistance) {
     let entities = [];
+    if(maxDistance > 64){
+        maxDistance = 64
+    }
     for (const entity of Object.values(bot.entities)) {
         const distance = entity.position.distanceTo(bot.entity.position);
         if (distance > maxDistance) continue;
@@ -184,7 +187,7 @@ export function getPosition(bot) {
 }
 
 
-export function getNearbyEntityTypes(bot) {
+export function getNearbyEntityTypes(bot,range) {
     /**
      * Get a list of all nearby mob types.
      * @param {Bot} bot - The bot to get nearby mobs for.
@@ -192,7 +195,7 @@ export function getNearbyEntityTypes(bot) {
      * @example
      * let mobs = world.getNearbyEntityTypes(bot);
      **/
-    let mobs = getNearbyEntities(bot, 16);
+    let mobs = getNearbyEntities(bot, range);
     let found = [];
     for (let i = 0; i < mobs.length; i++) {
         if (!found.includes(mobs[i].name)) {

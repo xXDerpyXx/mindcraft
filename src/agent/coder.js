@@ -198,7 +198,7 @@ export class Coder {
 
         let TIMEOUT;
         try {
-            console.log('executing code...\n');
+            console.log('executing code: '+this.cur_action_name);
             await this.stop();
             this.clear();
 

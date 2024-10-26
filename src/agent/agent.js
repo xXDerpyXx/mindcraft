@@ -205,7 +205,7 @@ export class Agent {
                         chat_message = `${pre_message}  ${chat_message}`;
                     this.cleanChat(res);
                 }
-
+                
                 let execute_res = await executeCommand(this, res);
 
                 console.log('Agent executed:', command_name, 'and got:', execute_res);

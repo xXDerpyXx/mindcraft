@@ -224,10 +224,11 @@ export async function executeCommand(agent, message) {
             output+"formatted like: "+command.name+"("+paramList+")"
             return output//`Command ${command.name} was given ${numArgs} args, but requires ${numParams(command)} args.`;
         }else {
-            if (is_action)
-                agent.coder.setCurActionName(command.name);
+            console.log("running "+command.name)
+            //if (is_action)
+            agent.coder.setCurActionName(command.name);
             const result = await command.perform(agent, ...parsed.args);
-            if (is_action)
+            //if (is_action)
                 agent.coder.setCurActionName('');
             return result;
         }

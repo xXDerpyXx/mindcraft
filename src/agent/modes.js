@@ -44,14 +44,16 @@ const modes = [
                 }
             }
             else if (this.fall_blocks.some(name => blockAbove.name.includes(name))) {
-                execute(this, agent, async () => {
+                agent.coder.setCurActionName(this.name);
+                await execute(this, agent, async () => {
                     await skills.moveAway(bot, 2);
                 });
             }
             else if (block.name === 'lava' || block.name === 'flowing_lava' || block.name === 'fire' ||
                 blockAbove.name === 'lava' || blockAbove.name === 'flowing_lava' || blockAbove.name === 'fire') {
                 say(agent, 'I\'m on fire!'); // TODO: gets stuck in lava
-                execute(this, agent, async () => {
+                agent.coder.setCurActionName(this.name);
+                await execute(this, agent, async () => {
                     let nearestWater = world.getNearestBlock(bot, 'water', 20);
                     if (nearestWater) {
                         const pos = nearestWater.position;
@@ -65,7 +67,8 @@ const modes = [
             }
             else if (Date.now() - bot.lastDamageTime < 3000 && (bot.health < 5 || bot.lastDamageTaken >= bot.health)) {
                 say(agent, 'I\'m dying!');
-                execute(this, agent, async () => {
+                agent.coder.setCurActionName(this.name);
+                await execute(this, agent, async () => {
                     await skills.moveAway(bot, 20);
                 });
             }
@@ -102,7 +105,8 @@ const modes = [
             if (this.stuck_time > this.max_stuck_time) {
                 say(agent, 'I\'m stuck!');
                 this.stuck_time = 0;
-                execute(this, agent, async () => {
+                agent.coder.setCurActionName(this.name);
+                await execute(this, agent, async () => {
                     const crashTimeout = setTimeout(() => { agent.cleanKill("Got stuck and couldn't get unstuck") }, 10000);
                     await skills.moveAway(bot, 5);
                     clearTimeout(crashTimeout);
@@ -121,7 +125,8 @@ const modes = [
             const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 16);
             if (enemy && await world.isClearPath(agent.bot, enemy)) {
                 say(agent, `Aaa! A ${enemy.name}!`);
-                execute(this, agent, async () => {
+                agent.coder.setCurActionName(this.name);
+                await execute(this, agent, async () => {
                     await skills.avoidEnemies(agent.bot, 24);
                 });
             }
@@ -137,7 +142,8 @@ const modes = [
             const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 8);
             if (enemy && await world.isClearPath(agent.bot, enemy)) {
                 say(agent, `Fighting ${enemy.name}!`);
-                execute(this, agent, async () => {
+                agent.coder.setCurActionName(this.name);
+                await execute(this, agent, async () => {
                     await skills.defendSelf(agent.bot, 8);
                 });
             }
@@ -152,7 +158,8 @@ const modes = [
         update: async function (agent) {
             const huntable = world.getNearestEntityWhere(agent.bot, entity => mc.isHuntable(entity), 8);
             if (huntable && await world.isClearPath(agent.bot, huntable)) {
-                execute(this, agent, async () => {
+                agent.coder.setCurActionName(this.name);
+                await execute(this, agent, async () => {
                     say(agent, `Hunting ${huntable.name}!`);
                     await skills.attackEntity(agent.bot, huntable);
                 });
@@ -179,7 +186,8 @@ const modes = [
                 if (Date.now() - this.noticed_at > this.wait * 1000) {
                     say(agent, `Picking up item!`);
                     this.prev_item = item;
-                    execute(this, agent, async () => {
+                    agent.coder.setCurActionName(this.name);
+                    await execute(this, agent, async () => {
                         await skills.pickupNearbyItems(agent.bot);
                     });
                     this.noticed_at = -1;
@@ -198,10 +206,11 @@ const modes = [
         active: false,
         cooldown: 5,
         last_place: Date.now(),
-        update: function (agent) {
+        update: async function (agent) {
             if (world.shouldPlaceTorch(agent.bot)) {
                 if (Date.now() - this.last_place < this.cooldown * 1000) return;
-                execute(this, agent, async () => {
+                agent.coder.setCurActionName(this.name);
+                await execute(this, agent, async () => {
                     const pos = agent.bot.entity.position;
                     await skills.placeBlock(agent.bot, 'torch', pos.x, pos.y, pos.z, 'bottom', true);
                 });
@@ -259,6 +268,7 @@ const modes = [
 async function execute(mode, agent, func, timeout=-1) {
     if (agent.self_prompter.on)
         agent.self_prompter.stopLoop();
+    agent.coder.setCurActionName(mode.name);
     mode.active = true;
     let code_return = await agent.coder.execute(async () => {
         await func();

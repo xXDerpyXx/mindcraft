@@ -346,7 +346,7 @@ export const actionsList = [
     },*/
     {
         name: '!attack',
-        description: 'Attack and kill the nearest entity of a given type.',
+        description: 'Attack and kill the nearest entity of a given type, do not use on blocks.',
         params: {'type': { type: 'string', description: 'The type of entity to attack.'}},
         perform: wrapExecution(async (agent, type) => {
             await skills.attackNearest(agent.bot, type, true);

@@ -104,9 +104,12 @@ export class NPCContoller {
 
     async executeNext() {
         if (!this.agent.isIdle()) return;
+        this.agent.coder.setCurActionName('idle');
+        /* // removed since it just causes bots to get stuck
         await this.agent.coder.execute(async () => {
+            
             await skills.moveAway(this.agent.bot, 2);
-        });
+        });*/
 
         if (!this.data.do_routine || this.agent.bot.time.timeOfDay < 13000) { 
             // Exit any buildings
